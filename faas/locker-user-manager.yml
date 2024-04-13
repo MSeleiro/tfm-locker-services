@@ -7,4 +7,5 @@ functions:
     lang: java11
     handler: ./locker-user-manager
     image: mseleiro/locker-user-manager:latest
-
+    environment_file:
+      - .env

@@ -28,3 +28,9 @@ replay_pid*
 
 # Maven compile
 target/
+
+# Gradle compile
+.gradle
+
+# variables
+.env
