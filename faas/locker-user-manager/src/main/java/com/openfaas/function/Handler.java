@@ -38,9 +38,7 @@ public class Handler extends com.openfaas.model.AbstractHandler {
 
         String s = "jdbc:mariadb://192.168.1.4:3306/"+USER_DB+"?user="+MARIADB_USER+"&password="+MARIADB_PASS;
 
-        //create connection for a server installed in localhost, with a user "root" with no password
         try (Connection conn = DriverManager.getConnection(s)) {
-            // create a Statement
             try (PreparedStatement stmt = conn.prepareStatement("INSERT INTO users VALUES (?, ?)")) {
                 User u = new User("Test Test");
                 byte[] uuidBytes = UUIDtoByteArray(u.user_id);
