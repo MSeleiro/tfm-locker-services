@@ -29,18 +29,18 @@ CREATE TABLE doors (
     ON UPDATE RESTRICT  
 );
 
-CREATE TABLE packages (
-  pkg_id BINARY(16) NOT NULL,
-  pkg_status ENUM('ARRIVING','IN_STORAGE','RETRIVED') NOT NULL,
-  pkg_user BINARY(16) NOT NULL,
-  pkg_door INT unsigned NOT NULL,
-  PRIMARY KEY (pkg_id),
+CREATE TABLE reservations (
+  rsv_id BINARY(16) NOT NULL,
+  rsv_status ENUM('ARRIVING','IN_STORAGE','RETRIVED') NOT NULL,
+  rsv_user BINARY(16) NOT NULL,
+  rsv_door INT unsigned NOT NULL,
+  PRIMARY KEY (rsv_id),
   CONSTRAINT fk_door
-    FOREIGN KEY (pkg_door) REFERENCES doors (door_id)
+    FOREIGN KEY (rsv_door) REFERENCES doors (door_id)
     ON DELETE CASCADE
     ON UPDATE RESTRICT,
   CONSTRAINT fk_user
-    FOREIGN KEY (pkg_user) REFERENCES users (user_id)
+    FOREIGN KEY (rsv_user) REFERENCES users (user_id)
     ON DELETE CASCADE
     ON UPDATE RESTRICT
 );
