@@ -1,0 +1,11 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://192.168.1.4:8080
+functions:
+  locker-door-manager:
+    lang: java11
+    handler: ./locker-door-manager
+    image: mseleiro/locker-door-manager:latest
+    environment_file:
+      - .env

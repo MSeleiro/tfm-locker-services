@@ -1,0 +1,11 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://192.168.1.4:8080
+functions:
+  locker-partner-manager:
+    lang: java11
+    handler: ./locker-partner-manager
+    image: mseleiro/locker-partner-manager:latest
+    environment_file:
+      - .env

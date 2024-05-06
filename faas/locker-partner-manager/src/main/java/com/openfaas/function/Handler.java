@@ -72,14 +72,14 @@ public class Handler extends com.openfaas.model.AbstractHandler {
     }
 
     private void insert(String body) throws SQLException {
-        User u = new Gson().fromJson(body, User.class);
+        Partner p = new Gson().fromJson(body, Partner.class);
 
         Connection conn = DriverManager.getConnection(CONN_STRING);
-        PreparedStatement stmt = conn.prepareStatement("INSERT INTO users VALUES (?, ?)");
-        byte[] uuidBytes = UUIDtoByteArray(u.user_id);
+        PreparedStatement stmt = conn.prepareStatement("INSERT INTO partners VALUES (?, ?)");
+        byte[] uuidBytes = UUIDtoByteArray(p.ptnr_id);
 
         stmt.setBytes(1, uuidBytes);
-        stmt.setString(2, u.user_name);
+        stmt.setString(2, p.ptnr_name);
         stmt.executeUpdate();
 
         stmt.close();
@@ -87,13 +87,13 @@ public class Handler extends com.openfaas.model.AbstractHandler {
     }
 
     private void update(String body) throws SQLException {
-        User u = new Gson().fromJson(body, User.class);
+        Partner p = new Gson().fromJson(body, Partner.class);
 
         Connection conn = DriverManager.getConnection(CONN_STRING);
-        PreparedStatement stmt = conn.prepareStatement("UPDATE users SET user_name=? WHERE user_id=?");
-        byte[] uuidBytes = UUIDtoByteArray(u.user_id);
+        PreparedStatement stmt = conn.prepareStatement("UPDATE partners SET ptnr_name=? WHERE ptnr_id=?");
+        byte[] uuidBytes = UUIDtoByteArray(p.ptnr_id);
 
-        stmt.setString(1, u.user_name);
+        stmt.setString(1, p.ptnr_name);
         stmt.setBytes(2, uuidBytes);
         stmt.executeUpdate();
 
@@ -102,11 +102,11 @@ public class Handler extends com.openfaas.model.AbstractHandler {
     }
     
     private void delete(String body) throws SQLException {
-        User u = new Gson().fromJson(body, User.class);
+        Partner p = new Gson().fromJson(body, Partner.class);
 
         Connection conn = DriverManager.getConnection(CONN_STRING);
-        PreparedStatement stmt = conn.prepareStatement("DELETE FROM users WHERE user_id=?");
-        byte[] uuidBytes = UUIDtoByteArray(u.user_id);
+        PreparedStatement stmt = conn.prepareStatement("DELETE FROM partners WHERE ptnr_id=?");
+        byte[] uuidBytes = UUIDtoByteArray(p.ptnr_id);
 
         stmt.setBytes(1, uuidBytes);
         stmt.executeUpdate();
@@ -121,20 +121,20 @@ public class Handler extends com.openfaas.model.AbstractHandler {
         return res;
     }
 
-    public class User {
-        public UUID user_id;
-        public String user_name;
+    public class Partner {
+        public UUID ptnr_id;
+        public String ptnr_name;
 
-        User() { }
+        Partner() { }
 
-        User(String un) {
-            user_id = UUID.randomUUID();
-            user_name = un;
+        Partner(String pn) {
+            ptnr_id = UUID.randomUUID();
+            ptnr_name = pn;
         }
 
-        public UUID getUser_id() { return user_id; }
-        public String getUser_name() { return user_name; }
-        public void setUser_id(UUID user_id) { this.user_id = user_id; }
-        public void setUser_name(String user_name) { this.user_name = user_name; }
+        public UUID getPtnr_id() { return ptnr_id; }
+        public String getPtnr_name() { return ptnr_name; }
+        public void setPtnr_id(UUID ptnr_id) { this.ptnr_id = ptnr_id; }
+        public void setPtnr_name(String ptnr_name) { this.ptnr_name = ptnr_name; }
     }
 }

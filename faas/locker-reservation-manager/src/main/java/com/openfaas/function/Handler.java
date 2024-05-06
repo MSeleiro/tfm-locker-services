@@ -60,11 +60,11 @@ public class Handler extends com.openfaas.model.AbstractHandler {
                 case "delete" : delete(req.getBody()); break;
                 default : badRequest(res);
             }
-        } catch(SQLException e) {
+        } catch(Exception e) {
             res.setBody(
                 "Error: " + e.getMessage() + 
-                "\n\n" + 
-                "Code and State: " + e.getErrorCode() + " - " + e.getSQLState()
+                "\n\n" //+ 
+                //"Code and State: " + e.getErrorCode() + " - " + e.getSQLState()
             );
         }
  
@@ -72,14 +72,17 @@ public class Handler extends com.openfaas.model.AbstractHandler {
     }
 
     private void insert(String body) throws SQLException {
-        User u = new Gson().fromJson(body, User.class);
+        Reservation r = new Gson().fromJson(body, Reservation.class);
 
         Connection conn = DriverManager.getConnection(CONN_STRING);
-        PreparedStatement stmt = conn.prepareStatement("INSERT INTO users VALUES (?, ?)");
-        byte[] uuidBytes = UUIDtoByteArray(u.user_id);
+        PreparedStatement stmt = conn.prepareStatement("INSERT INTO reservations VALUES (?, ?, ?, ?)");
+        byte[] uuidBytes1 = UUIDtoByteArray(r.rsv_id);
+        byte[] uuidBytes2 = UUIDtoByteArray(r.rsv_user);
 
-        stmt.setBytes(1, uuidBytes);
-        stmt.setString(2, u.user_name);
+        stmt.setBytes(1, uuidBytes1);
+        stmt.setString(2, r.rsv_status);
+        stmt.setBytes(3, uuidBytes2);
+        stmt.setInt(4, r.rsv_door);
         stmt.executeUpdate();
 
         stmt.close();
@@ -87,14 +90,17 @@ public class Handler extends com.openfaas.model.AbstractHandler {
     }
 
     private void update(String body) throws SQLException {
-        User u = new Gson().fromJson(body, User.class);
+        Reservation r = new Gson().fromJson(body, Reservation.class);
 
         Connection conn = DriverManager.getConnection(CONN_STRING);
-        PreparedStatement stmt = conn.prepareStatement("UPDATE users SET user_name=? WHERE user_id=?");
-        byte[] uuidBytes = UUIDtoByteArray(u.user_id);
+        PreparedStatement stmt = conn.prepareStatement("UPDATE reservations SET rsv_status=?, rsv_user=?, rsv_door=? WHERE rsv_id=?");
+        byte[] uuidBytes1 = UUIDtoByteArray(r.rsv_id);
+        byte[] uuidBytes2 = UUIDtoByteArray(r.rsv_user);
 
-        stmt.setString(1, u.user_name);
-        stmt.setBytes(2, uuidBytes);
+        stmt.setString(1, r.rsv_status);
+        stmt.setBytes(2, uuidBytes2);
+        stmt.setInt(3, r.rsv_door);
+        stmt.setBytes(4, uuidBytes1);
         stmt.executeUpdate();
 
         stmt.close();
@@ -102,13 +108,13 @@ public class Handler extends com.openfaas.model.AbstractHandler {
     }
     
     private void delete(String body) throws SQLException {
-        User u = new Gson().fromJson(body, User.class);
+        Reservation r = new Gson().fromJson(body, Reservation.class);
 
         Connection conn = DriverManager.getConnection(CONN_STRING);
-        PreparedStatement stmt = conn.prepareStatement("DELETE FROM users WHERE user_id=?");
-        byte[] uuidBytes = UUIDtoByteArray(u.user_id);
+        PreparedStatement stmt = conn.prepareStatement("DELETE FROM reservations WHERE rsv_id=?");
+        byte[] uuidBytes1 = UUIDtoByteArray(r.rsv_id);
 
-        stmt.setBytes(1, uuidBytes);
+        stmt.setBytes(1, uuidBytes1);
         stmt.executeUpdate();
 
         stmt.close();
@@ -121,20 +127,21 @@ public class Handler extends com.openfaas.model.AbstractHandler {
         return res;
     }
 
-    public class User {
-        public UUID user_id;
-        public String user_name;
+    public class Reservation {
+        public UUID rsv_id;
+        public String rsv_status;
+        public UUID rsv_user;
+        public int rsv_door;
 
-        User() { }
+        Reservation() { }
 
-        User(String un) {
-            user_id = UUID.randomUUID();
-            user_name = un;
-        }
-
-        public UUID getUser_id() { return user_id; }
-        public String getUser_name() { return user_name; }
-        public void setUser_id(UUID user_id) { this.user_id = user_id; }
-        public void setUser_name(String user_name) { this.user_name = user_name; }
+        public UUID getRsv_id() { return rsv_id; }
+        public String getRsv_status() { return rsv_status; }
+        public UUID getRsv_user() { return rsv_user; }
+        public int getRsv_door() { return rsv_door; }
+        public void setRsv_id(UUID rsv_id) { this.rsv_id = rsv_id; }
+        public void setRsv_status(String rsv_status) { this.rsv_status = rsv_status; }
+        public void setRsv_user(UUID rsv_user) { this.rsv_user = rsv_user; }
+        public void setRsv_door(int rsv_door) { this.rsv_door = rsv_door; }
     }
 }

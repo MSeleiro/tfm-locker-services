@@ -72,14 +72,17 @@ public class Handler extends com.openfaas.model.AbstractHandler {
     }
 
     private void insert(String body) throws SQLException {
-        User u = new Gson().fromJson(body, User.class);
+        Door d = new Gson().fromJson(body, Door.class);
 
         Connection conn = DriverManager.getConnection(CONN_STRING);
-        PreparedStatement stmt = conn.prepareStatement("INSERT INTO users VALUES (?, ?)");
-        byte[] uuidBytes = UUIDtoByteArray(u.user_id);
+        PreparedStatement stmt = conn.prepareStatement("INSERT INTO doors VALUES (?, ?, ?, ?, ?)");
+        byte[] uuidBytes = UUIDtoByteArray(d.door_ptnr);
 
-        stmt.setBytes(1, uuidBytes);
-        stmt.setString(2, u.user_name);
+        stmt.setInt(1, d.door_id);
+        stmt.setString(2, d.door_type);
+        stmt.setBoolean(3, d.door_open);
+        stmt.setBoolean(4, d.occupied);
+        stmt.setBytes(5, uuidBytes);
         stmt.executeUpdate();
 
         stmt.close();
@@ -87,14 +90,17 @@ public class Handler extends com.openfaas.model.AbstractHandler {
     }
 
     private void update(String body) throws SQLException {
-        User u = new Gson().fromJson(body, User.class);
+        Door d = new Gson().fromJson(body, Door.class);
 
         Connection conn = DriverManager.getConnection(CONN_STRING);
-        PreparedStatement stmt = conn.prepareStatement("UPDATE users SET user_name=? WHERE user_id=?");
-        byte[] uuidBytes = UUIDtoByteArray(u.user_id);
+        PreparedStatement stmt = conn.prepareStatement("UPDATE doors SET door_type=?, door_open=?, occupied=?, door_ptnr=? WHERE door_id=?");
+        byte[] uuidBytes = UUIDtoByteArray(d.door_ptnr);
 
-        stmt.setString(1, u.user_name);
-        stmt.setBytes(2, uuidBytes);
+        stmt.setString(1, d.door_type);
+        stmt.setBoolean(2, d.door_open);
+        stmt.setBoolean(3, d.occupied);
+        stmt.setBytes(4, uuidBytes);
+        stmt.setInt(5, d.door_id);
         stmt.executeUpdate();
 
         stmt.close();
@@ -102,13 +108,12 @@ public class Handler extends com.openfaas.model.AbstractHandler {
     }
     
     private void delete(String body) throws SQLException {
-        User u = new Gson().fromJson(body, User.class);
+        Door d = new Gson().fromJson(body, Door.class);
 
         Connection conn = DriverManager.getConnection(CONN_STRING);
-        PreparedStatement stmt = conn.prepareStatement("DELETE FROM users WHERE user_id=?");
-        byte[] uuidBytes = UUIDtoByteArray(u.user_id);
+        PreparedStatement stmt = conn.prepareStatement("DELETE FROM doors WHERE door_id=?");
 
-        stmt.setBytes(1, uuidBytes);
+        stmt.setInt(1, d.door_id);
         stmt.executeUpdate();
 
         stmt.close();
@@ -121,20 +126,24 @@ public class Handler extends com.openfaas.model.AbstractHandler {
         return res;
     }
 
-    public class User {
-        public UUID user_id;
-        public String user_name;
+    public class Door {
+        public int door_id;
+        public String door_type;
+        public boolean door_open;
+        public boolean occupied;
+        public UUID door_ptnr;
 
-        User() { }
+        Door() { }
 
-        User(String un) {
-            user_id = UUID.randomUUID();
-            user_name = un;
-        }
-
-        public UUID getUser_id() { return user_id; }
-        public String getUser_name() { return user_name; }
-        public void setUser_id(UUID user_id) { this.user_id = user_id; }
-        public void setUser_name(String user_name) { this.user_name = user_name; }
+        public int getDoor_id() { return door_id; }
+        public UUID getDoor_ptnr() { return door_ptnr; }
+        public String getDoor_type() { return door_type; }
+        public boolean getDoor_open() { return door_open; }
+        public boolean getOccupied() { return occupied; }
+        public void setDoor_id(int door_id) { this.door_id = door_id; }
+        public void setDoor_open(boolean door_open) { this.door_open = door_open; }
+        public void setDoor_ptnr(UUID door_ptnr) { this.door_ptnr = door_ptnr; }
+        public void setDoor_type(String door_type) { this.door_type = door_type; }
+        public void setOccupied(boolean occupied) { this.occupied = occupied; }
     }
 }
