@@ -34,6 +34,9 @@ CREATE TABLE reservations (
   rsv_status ENUM('ARRIVING','IN_STORAGE','RETRIVED') NOT NULL,
   rsv_user BINARY(16) NOT NULL,
   rsv_door INT unsigned NOT NULL,
+  rsv_dcode CHAR(65) NOT NULL,
+  rsv_lcode CHAR(65) NOT NULL,
+  rsv_ccode CHAR(65) NOT NULL,
   PRIMARY KEY (rsv_id),
   CONSTRAINT fk_door
     FOREIGN KEY (rsv_door) REFERENCES doors (door_id)

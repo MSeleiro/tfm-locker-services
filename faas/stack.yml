@@ -1,0 +1,41 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://127.0.0.1:8080
+functions:
+  locker-user-manager:
+    lang: java11
+    handler: ./locker-user-manager
+    image: mseleiro/locker-user-manager:latest
+    environment_file:
+      - .env
+  locker-partner-manager:
+    lang: java11
+    handler: ./locker-partner-manager
+    image: mseleiro/locker-partner-manager:latest
+    environment_file:
+      - .env
+  locker-door-manager:
+    lang: java11
+    handler: ./locker-door-manager
+    image: mseleiro/locker-door-manager:latest
+    environment_file:
+      - .env
+  locker-reservation-manager:
+    lang: java11
+    handler: ./locker-reservation-manager
+    image: mseleiro/locker-reservation-manager:latest
+    environment_file:
+      - .env
+#  locker-screen-io:
+#    lang: java11
+#    handler: ./locker-screen-io
+#    image: mseleiro/locker-screen-io:latest
+#    environment_file:
+#      - .env
+  locker-controller:
+    lang: java11
+    handler: ./locker-controller
+    image: mseleiro/locker-controller:latest
+    environment_file:
+      - .env

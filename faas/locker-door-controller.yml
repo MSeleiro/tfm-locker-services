@@ -1,0 +1,10 @@
+version: 1.0
+provider:
+  name: openfaas
+  gateway: http://192.168.1.4:8080
+functions:
+  locker-door-controller:
+    lang: java11
+    handler: ./locker-door-controller
+    image: mseleiro/locker-door-controller:latest
+
