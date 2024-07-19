@@ -58,22 +58,22 @@ public class Handler extends com.openfaas.model.AbstractHandler {
         JsonObject body = new JsonObject();
         try {
             switch (query.get("action").toLowerCase()) {
-                case "insert"   : {
+                case "insert": {
                     String id = insert(req.getBody()); 
                     body.addProperty("id", id);
                     break;
                 }
-                case "update"   : {
+                case "update": {
                     String id = update(req.getBody()); 
                     body.addProperty("id", id);
                     break;
                 }
-                case "delete"   : {
+                case "delete": {
                     String id = delete(req.getBody());
                     body.addProperty("id", id);
                     break;
                 }
-                case "validate" : {
+                case "validate": {
                     int door = validate(req.getBody());
                     body.addProperty("door", door);
                     break;
@@ -83,7 +83,7 @@ public class Handler extends com.openfaas.model.AbstractHandler {
                     body.addProperty("status", status);
                     break;
                 }
-                default : badRequest(res);
+                default: return badRequest(res);
             }
         } catch(Exception e) {
             res.setBody(

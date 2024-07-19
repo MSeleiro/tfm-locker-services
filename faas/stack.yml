@@ -39,3 +39,9 @@ functions:
     image: mseleiro/locker-controller:latest
     environment_file:
       - .env
+  locker-door-io:
+    lang: java11
+    handler: ./locker-door-io
+    image: mseleiro/locker-door-io:latest
+    environment_file:
+      - .env

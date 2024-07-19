@@ -1,5 +1,7 @@
 package com.openfaas.function;
 
+import java.io.StringWriter;
+import java.io.PrintWriter;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -25,66 +27,75 @@ public class Handler extends com.openfaas.model.AbstractHandler {
 
     public IResponse Handle(IRequest req) {
         Response res = new Response();
-	    
-        JsonObject body = new Gson().fromJson(req.getBody(), JsonObject.class);
-        String c = body.get("code").getAsString();
-        String sha256 = Hashing.sha256()
-            .hashString(c, StandardCharsets.UTF_8)
-            .toString();
+        try {
+            JsonObject body = new Gson().fromJson(req.getBody(), JsonObject.class);
+            String c = body.get("code").getAsString();
+            String sha256 = Hashing.sha256()
+                .hashString(c, StandardCharsets.UTF_8)
+                .toString();
 
-        int door = validateCode(sha256);
+            int door = validateCode(sha256);
 
-        if (door == -2) {
-            res.setBody("validate error");
+            if (door == -2) {
+                res.setBody("validate error");
+                res.setStatusCode(500);
+                return res;
+            }
+
+            if (door == -1) {
+                res.setBody("Controller: Invalid code");
+
+                /*
+                * https://www.rfc-editor.org/rfc/rfc4918#section-11.2
+                * The 422 (Unprocessable Entity) status code means the server understands the content type of the request entity 
+                * (hence a 415 Unsupported Media Type status code is inappropriate), and the syntax of the request entity is correct 
+                * (thus a 400 Bad Request status code is inappropriate) but was unable to process the contained instructions. 
+                * For example, this error condition may occur if an XML request body contains well-formed (i.e., syntactically correct), 
+                * but semantically erroneous, XML instructions.
+                */
+                res.setStatusCode(422); 
+                return res;
+            }
+            
+
+            boolean opened = openDoor(door);
+
+            if (!opened) {
+                res.setBody("openDoor error");
+                res.setStatusCode(500);
+                return res;
+            }
+            
+            boolean closed = closeDoor(door);
+
+            if (!closed) {
+                res.setBody("closeDoor error");
+                res.setStatusCode(500);
+                return res;
+            }
+    
+            String reservationStatus = disableCode(sha256); //also updates package status
+
+            if (reservationStatus == null || reservationStatus == "") {
+                res.setBody("disableCode error");
+                res.setStatusCode(500);
+                return res;
+            }
+
+            triggerBackendUpdate(reservationStatus);
+
+            res.setBody("Operation successful");
+            res.setStatusCode(200);
+            return res;
+        } catch (Exception e) {
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw));
+            res.setBody(
+                "Error" + sw.toString()
+            );
             res.setStatusCode(500);
             return res;
         }
-
-        if (door == -1) {
-            res.setBody("Controller: Invalid code");
-
-            /*
-             * https://www.rfc-editor.org/rfc/rfc4918#section-11.2
-             * The 422 (Unprocessable Entity) status code means the server understands the content type of the request entity 
-             * (hence a 415 Unsupported Media Type status code is inappropriate), and the syntax of the request entity is correct 
-             * (thus a 400 Bad Request status code is inappropriate) but was unable to process the contained instructions. 
-             * For example, this error condition may occur if an XML request body contains well-formed (i.e., syntactically correct), 
-             * but semantically erroneous, XML instructions.
-             */
-            res.setStatusCode(422); 
-            return res;
-        }
-        
-        /*
-        boolean opened = openDoor(door);
-
-        if (!opened) {
-            res.setBody("openDoor error");
-            res.setStatusCode(500);
-            return res;
-        }
-        
-        boolean closed = closeDoor(door);
-
-        if (!closed) {
-            res.setBody("closeDoor error");
-            res.setStatusCode(500);
-            return res;
-        }
-        */
-        String reservationStatus = disableCode(sha256); //also updates package status
-
-        if (reservationStatus == null || reservationStatus == "") {
-            res.setBody("disableCode error");
-            res.setStatusCode(500);
-            return res;
-        }
-
-        triggerBackendUpdate(reservationStatus);
-
-        res.setBody("Operation successful");
-        res.setStatusCode(200);
-	    return res;
     }
 
     // verify if code exists in the database
@@ -94,7 +105,7 @@ public class Handler extends com.openfaas.model.AbstractHandler {
         if (res == null)
             return -2;
 
-        JsonObject resBody = new Gson().fromJson(res.toString(), JsonObject.class);
+        JsonObject resBody = new Gson().fromJson(res, JsonObject.class);
         return resBody.get("door").getAsInt(); 
     }
 
@@ -102,13 +113,21 @@ public class Handler extends com.openfaas.model.AbstractHandler {
     private boolean openDoor(int door) {
         String res = sender(OPENFAAS_URL, DOOR_IO, "open", "door", String.valueOf(door));
 
-        return res != null;
+        if (res == null)
+            return false;
+
+        JsonObject resBody = new Gson().fromJson(res, JsonObject.class);
+        return resBody.get("resp").getAsInt() == 0; 
     }
 
     private boolean closeDoor(int door) {
         String res = sender(OPENFAAS_URL, DOOR_IO, "close", "door", String.valueOf(door));
 
-        return res != null;
+        if (res == null)
+            return false;
+
+        JsonObject resBody = new Gson().fromJson(res, JsonObject.class);
+        return resBody.get("resp").getAsInt() == 0; 
     }
 
     private String disableCode(String sha256) {
@@ -117,7 +136,7 @@ public class Handler extends com.openfaas.model.AbstractHandler {
         if (res == null)
             return null;
 
-        JsonObject resBody = new Gson().fromJson(res.toString(), JsonObject.class);
+        JsonObject resBody = new Gson().fromJson(res, JsonObject.class);
         return resBody.get("status").getAsString(); 
     }
 
