@@ -19,8 +19,6 @@ CREATE TABLE users (
 CREATE TABLE doors (
   door_id INT unsigned NOT NULL AUTO_INCREMENT,
   door_type ENUM('SMALL','MEDIUM','LARGE','EXTRA_LARGE') NOT NULL,
-  door_open BOOLEAN NOT NULL DEFAULT FALSE,
-  occupied  BOOLEAN NOT NULL DEFAULT FALSE,
   door_ptnr BINARY(16) NOT NULL,
   PRIMARY KEY (door_id),
   CONSTRAINT fk_ptnr

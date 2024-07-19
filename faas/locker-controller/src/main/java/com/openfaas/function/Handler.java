@@ -20,10 +20,10 @@ import com.openfaas.model.Response;
 
 public class Handler extends com.openfaas.model.AbstractHandler {
 
-    private final String OPENFAAS_URL = "http://192.168.1.4:8080/function/";
-    private final String BACKEND_URL = "http://.../";
-    private final String RESERVATION_MANAGER = "locker-reservation-manager";
-    private final String DOOR_IO = "locker-door-io";
+    private final String OPENFAAS_URL = System.getenv("OPENFAAS_URL");
+    private final String BACKEND_URL = System.getenv("BACKEND_URL");
+    private final String RESERVATION_MANAGER = System.getenv("RESERVATIONS_DB_FUNC");
+    private final String DOOR_IO = System.getenv("DOOR_IO_HANDLER");
 
     public IResponse Handle(IRequest req) {
         Response res = new Response();

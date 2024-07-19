@@ -27,12 +27,12 @@ functions:
     image: mseleiro/locker-reservation-manager:latest
     environment_file:
       - .env
-#  locker-screen-io:
-#    lang: java11
-#    handler: ./locker-screen-io
-#    image: mseleiro/locker-screen-io:latest
-#    environment_file:
-#      - .env
+  locker-screen-io:
+    lang: java11
+    handler: ./locker-screen-io
+    image: mseleiro/locker-screen-io:latest
+    environment_file:
+      - .env
   locker-controller:
     lang: java11
     handler: ./locker-controller

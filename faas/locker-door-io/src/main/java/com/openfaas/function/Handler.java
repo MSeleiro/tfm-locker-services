@@ -21,7 +21,7 @@ public class Handler extends com.openfaas.model.AbstractHandler {
 
     private final String IP = System.getenv("SIM_IP");
     private final String PORT = System.getenv("SIM_PORT");
-    private final String PATH = "/api";
+    private final String PATH = System.getenv("SIM_PATH");
     private final String BODY_FORMAT = "{\"mid\": %s, \"data\": {\"door\": %s}}";
 
     public IResponse Handle(IRequest req) {

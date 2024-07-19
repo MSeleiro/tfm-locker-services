@@ -12,6 +12,7 @@ import com.openfaas.model.IResponse;
 import com.openfaas.model.IRequest;
 import com.openfaas.model.Response;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 public class Handler extends com.openfaas.model.AbstractHandler {
 
@@ -53,25 +54,40 @@ public class Handler extends com.openfaas.model.AbstractHandler {
             return badRequest(res);
         }
 
+        JsonObject body = new JsonObject();
         try {
             switch (query.get("action").toLowerCase()) {
-                case "insert" : insert(req.getBody()); break;
-                case "update" : update(req.getBody()); break;
-                case "delete" : delete(req.getBody()); break;
-                default : badRequest(res);
+                case "insert": {
+                    String id = insert(req.getBody()); 
+                    body.addProperty("id", id);
+                    break;
+                }
+                case "update": {
+                    String id = update(req.getBody()); 
+                    body.addProperty("id", id);
+                    break;
+                }
+                case "delete": {
+                    String id = delete(req.getBody());
+                    body.addProperty("id", id);
+                    break;
+                }
+                default: return badRequest(res);
             }
-        } catch(SQLException e) {
+        } catch(Exception e) {
             res.setBody(
                 "Error: " + e.getMessage() + 
-                "\n\n" + 
-                "Code and State: " + e.getErrorCode() + " - " + e.getSQLState()
+                "\n\n" //+ 
+                //"Code and State: " + e.getErrorCode() + " - " + e.getSQLState()
             );
         }
  
+        res.setBody(new Gson().toJson(body));
+        res.setContentType("application/json");
 	    return res;
     }
 
-    private void insert(String body) throws SQLException {
+    private String insert(String body) throws SQLException {
         User u = new Gson().fromJson(body, User.class);
 
         Connection conn = DriverManager.getConnection(CONN_STRING);
@@ -84,9 +100,10 @@ public class Handler extends com.openfaas.model.AbstractHandler {
 
         stmt.close();
         conn.close();
+        return u.user_id.toString();
     }
 
-    private void update(String body) throws SQLException {
+    private String update(String body) throws SQLException {
         User u = new Gson().fromJson(body, User.class);
 
         Connection conn = DriverManager.getConnection(CONN_STRING);
@@ -99,9 +116,10 @@ public class Handler extends com.openfaas.model.AbstractHandler {
 
         stmt.close();
         conn.close();
+        return u.user_id.toString();
     }
     
-    private void delete(String body) throws SQLException {
+    private String delete(String body) throws SQLException {
         User u = new Gson().fromJson(body, User.class);
 
         Connection conn = DriverManager.getConnection(CONN_STRING);
@@ -113,6 +131,8 @@ public class Handler extends com.openfaas.model.AbstractHandler {
 
         stmt.close();
         conn.close();
+
+        return u.user_id.toString();
     }
     
     private IResponse badRequest(Response res) {

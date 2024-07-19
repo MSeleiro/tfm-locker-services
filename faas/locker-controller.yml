@@ -7,4 +7,5 @@ functions:
     lang: java11
     handler: ./locker-controller
     image: mseleiro/locker-controller:latest
-
+    environment_file:
+      - .env

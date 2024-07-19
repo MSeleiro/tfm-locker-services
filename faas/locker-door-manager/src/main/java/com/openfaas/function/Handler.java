@@ -12,6 +12,7 @@ import com.openfaas.model.IResponse;
 import com.openfaas.model.IRequest;
 import com.openfaas.model.Response;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 public class Handler extends com.openfaas.model.AbstractHandler {
 
@@ -53,61 +54,76 @@ public class Handler extends com.openfaas.model.AbstractHandler {
             return badRequest(res);
         }
 
+        JsonObject body = new JsonObject();
         try {
             switch (query.get("action").toLowerCase()) {
-                case "insert" : insert(req.getBody()); break;
-                case "update" : update(req.getBody()); break;
-                case "delete" : delete(req.getBody()); break;
-                default : badRequest(res);
+                case "insert": {
+                    String id = insert(req.getBody()); 
+                    body.addProperty("id", id);
+                    break;
+                }
+                case "update": {
+                    String id = update(req.getBody()); 
+                    body.addProperty("id", id);
+                    break;
+                }
+                case "delete": {
+                    String id = delete(req.getBody());
+                    body.addProperty("id", id);
+                    break;
+                }
+                default: return badRequest(res);
             }
-        } catch(SQLException e) {
+        } catch(Exception e) {
             res.setBody(
                 "Error: " + e.getMessage() + 
-                "\n\n" + 
-                "Code and State: " + e.getErrorCode() + " - " + e.getSQLState()
+                "\n\n" //+ 
+                //"Code and State: " + e.getErrorCode() + " - " + e.getSQLState()
             );
         }
  
+        res.setBody(new Gson().toJson(body));
+        res.setContentType("application/json");
 	    return res;
     }
 
-    private void insert(String body) throws SQLException {
+    private String insert(String body) throws SQLException {
         Door d = new Gson().fromJson(body, Door.class);
 
         Connection conn = DriverManager.getConnection(CONN_STRING);
-        PreparedStatement stmt = conn.prepareStatement("INSERT INTO doors VALUES (?, ?, ?, ?, ?)");
+        PreparedStatement stmt = conn.prepareStatement("INSERT INTO doors VALUES (?, ?, ?)");
         byte[] uuidBytes = UUIDtoByteArray(d.door_ptnr);
 
         stmt.setInt(1, d.door_id);
         stmt.setString(2, d.door_type);
-        stmt.setBoolean(3, d.door_open);
-        stmt.setBoolean(4, d.occupied);
-        stmt.setBytes(5, uuidBytes);
+        stmt.setBytes(3, uuidBytes);
         stmt.executeUpdate();
 
         stmt.close();
         conn.close();
+
+        return String.valueOf(d.door_id);
     }
 
-    private void update(String body) throws SQLException {
+    private String update(String body) throws SQLException {
         Door d = new Gson().fromJson(body, Door.class);
 
         Connection conn = DriverManager.getConnection(CONN_STRING);
-        PreparedStatement stmt = conn.prepareStatement("UPDATE doors SET door_type=?, door_open=?, occupied=?, door_ptnr=? WHERE door_id=?");
+        PreparedStatement stmt = conn.prepareStatement("UPDATE doors SET door_type=?, door_ptnr=? WHERE door_id=?");
         byte[] uuidBytes = UUIDtoByteArray(d.door_ptnr);
 
         stmt.setString(1, d.door_type);
-        stmt.setBoolean(2, d.door_open);
-        stmt.setBoolean(3, d.occupied);
-        stmt.setBytes(4, uuidBytes);
-        stmt.setInt(5, d.door_id);
+        stmt.setBytes(2, uuidBytes);
+        stmt.setInt(3, d.door_id);
         stmt.executeUpdate();
 
         stmt.close();
         conn.close();
+
+        return String.valueOf(d.door_id);
     }
     
-    private void delete(String body) throws SQLException {
+    private String delete(String body) throws SQLException {
         Door d = new Gson().fromJson(body, Door.class);
 
         Connection conn = DriverManager.getConnection(CONN_STRING);
@@ -118,6 +134,8 @@ public class Handler extends com.openfaas.model.AbstractHandler {
 
         stmt.close();
         conn.close();
+
+        return String.valueOf(d.door_id);
     }
     
     private IResponse badRequest(Response res) {
@@ -129,8 +147,6 @@ public class Handler extends com.openfaas.model.AbstractHandler {
     public class Door {
         public int door_id;
         public String door_type;
-        public boolean door_open;
-        public boolean occupied;
         public UUID door_ptnr;
 
         Door() { }
@@ -138,12 +154,8 @@ public class Handler extends com.openfaas.model.AbstractHandler {
         public int getDoor_id() { return door_id; }
         public UUID getDoor_ptnr() { return door_ptnr; }
         public String getDoor_type() { return door_type; }
-        public boolean getDoor_open() { return door_open; }
-        public boolean getOccupied() { return occupied; }
         public void setDoor_id(int door_id) { this.door_id = door_id; }
-        public void setDoor_open(boolean door_open) { this.door_open = door_open; }
         public void setDoor_ptnr(UUID door_ptnr) { this.door_ptnr = door_ptnr; }
         public void setDoor_type(String door_type) { this.door_type = door_type; }
-        public void setOccupied(boolean occupied) { this.occupied = occupied; }
     }
 }
