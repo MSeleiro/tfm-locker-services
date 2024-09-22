@@ -1,0 +1,4 @@
+server:
+  port: 8115
+  servlet:
+    contextPath: /locker-door-manager

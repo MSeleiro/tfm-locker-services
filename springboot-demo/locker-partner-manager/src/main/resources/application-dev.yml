@@ -1,0 +1,4 @@
+server:
+  port: 8114
+  servlet:
+    contextPath: /locker-partner-manager

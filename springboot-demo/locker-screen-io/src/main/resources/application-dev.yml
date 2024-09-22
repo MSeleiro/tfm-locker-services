@@ -1,0 +1,4 @@
+server:
+  port: 8112
+  servlet:
+    contextPath: /locker-screen-io

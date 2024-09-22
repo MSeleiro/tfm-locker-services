@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: Launcher
+    
+backend:
+  apps:
+    locker-controller:
+      contextPath: /locker-controller
+      port: 8110
+    locker-door-io:
+      contextPath: /locker-door-io
+      port: 8111
+    locker-screen-io:
+      contextPath: /locker-screen-io
+      port: 8112
+    locker-user-manager:
+      contextPath: /locker-user-manager
+      port: 8113
+    locker-partner-manager:
+      contextPath: /locker-partner-manager
+      port: 8114
+    locker-door-manager:
+      contextPath: /locker-door-manager
+      port: 8115
+    locker-reservation-manager:
+      contextPath: /locker-reservation-manager
+      port: 8116
