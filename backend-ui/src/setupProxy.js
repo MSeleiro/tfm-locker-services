@@ -9,7 +9,7 @@ module.exports = function(app) {
       pathRewrite: {
         '^/api/': '/', // remove base path
       },
-      auth: 'admin:RBAAEwClExQEFNnMem2l1kn6yyRyv9CdGpMKPU4o60h9IWqIW3WoCKnCjoCov2V'
+      auth: process.env.REACT_APP_MIDDLEWARE_AUTH
     })
   );
 };
