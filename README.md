@@ -13,4 +13,4 @@ This repository was created as support for the TFM *"LockyCloudCore - CTT locker
 - Folder [dapr](./dapr) includes the code developed on our first proposal, Event-Driven Microservices with Dapr.
 
 
-- Folder [extra-files](./extra-file) has the Annexes referenced in the TFM text, namely the [JMETER test results](./extra-files/jmeter-results/), and the [Prometheus metrics](./extra-files/prometheus-metrics/metrics.txt) measured by the built-in Prometheus in faasd.
+- Folder [extra-files](./extra-files) has the Annexes referenced in the TFM text, namely the [JMETER test results](./extra-files/jmeter-results/), and the [Prometheus metrics](./extra-files/prometheus-metrics/metrics.txt) measured by the built-in Prometheus in faasd.
